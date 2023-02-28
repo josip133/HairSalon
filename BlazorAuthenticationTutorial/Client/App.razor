@@ -1,0 +1,154 @@
+﻿<CascadingAuthenticationState>
+    <Router AppAssembly="@typeof(App).Assembly">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+                <NotAuthorized>
+                 
+
+                    <h3>Termini</h3>
+
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Datum</th>
+                                <th>Vrijeme</th>
+                                <th>Ime i Prezime</th>
+                                <th>Telefon</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var appointment in appointments)
+                            {
+                                <tr>
+                                    <td>@appointment.Date.ToShortDateString()</td>
+                                    <td>@appointment.Time</td>
+                                    <td>@appointment.CustomerName</td>
+                                    <td>@appointment.PhoneNumber</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                    <button class="btn btn-primary" @onclick="AddAppointment">Rezerviraj termin</button>
+
+                    @if (editAppointment != null)
+                    {
+                        <div class="modal" style="display:block">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Rezerviraj termin</h5>
+                                        <button type="button" class="btn btn-secondary" @onclick="CancelEdit">Zatvori</button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="form-group">
+                                            <label>Datum</label>
+                                            <input type="date" class="form-control" @bind="editAppointment.Date" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Vrijeme</label>
+                                            <input type="time" class="form-control" @bind="editAppointment.Time" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Ime i prezime</label>
+                                            <input type="text" class="form-control" @bind="editAppointment.CustomerName" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Telefon</label>
+                                            <input type="text" class="form-control" @bind="editAppointment.PhoneNumber" />
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Frizer</label>
+                                            <InputSelect @bind-Value="@HairDressers">
+                                                @foreach (string hairDresser in HairDressers)
+                                                {
+                                                    <option value="@hairDresser">@hairDresser</option>
+                                                }
+                                            </InputSelect>
+
+                                            <input type="text" class="form-control" @bind="editAppointment.HairDresser" />
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-primary" @onclick="SaveEdit">Rezerviraj</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    @code {
+                        private List<Appointment> appointments = new List<Appointment>
+                    {
+                    new Appointment
+                    {
+                    Date = new DateTime(2023, 02, 09),
+                    Time = new DateTime(0001, 01, 01, 10, 0, 0),
+                    CustomerName = "Josip",
+                    PhoneNumber = "111 111",
+                    HairDresser = "Marko",
+                    },
+                    new Appointment
+                    {
+                    Date = new DateTime(2023, 02, 10),
+                    Time = new DateTime(0001, 01, 01, 11, 0, 0),
+                    CustomerName = "Marko",
+                    PhoneNumber = "111 222",
+                    HairDresser = "Josip"
+                    }
+                    };
+
+        private Appointment editAppointment;
+
+        private void AddAppointment()
+        {
+            editAppointment = new Appointment();
+        }
+
+        private void EditAppointment(Appointment appointment)
+        {
+            editAppointment = appointment;
+        }
+
+        private void DeleteAppointment(Appointment appointment)
+        {
+            appointments.Remove(appointment);
+        }
+
+        private void CancelEdit()
+        {
+            editAppointment = null;
+        }
+
+        private void SaveEdit()
+        {
+            if (!appointments.Contains(editAppointment))
+            {
+                appointments.Add(editAppointment);
+            }
+
+            editAppointment = null;
+        }
+
+        private class Appointment
+        {
+            public DateTime Date { get; set; }
+            public DateTime Time { get; set; }
+            public string CustomerName { get; set; }
+            public string PhoneNumber { get; set; }
+            public string HairDresser { get; set; }
+        }
+                    }
+
+                </NotAuthorized>
+            </AuthorizeRouteView>
+            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        </Found>
+        <NotFound>
+            <PageTitle>Not found</PageTitle>
+            <LayoutView Layout="@typeof(MainLayout)">
+                <p role="alert">Sorry, there's nothing at this address.</p>
+            </LayoutView>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>
